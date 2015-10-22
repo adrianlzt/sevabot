@@ -16,7 +16,7 @@ import imp
 
 import settings
 
-from sevabot.utils import fail_safe, ensure_unicode
+from sevabot.utils import fail_safe, ensure_unicode, get_chat_id
 
 logger = logging.getLogger("sevabot")
 
@@ -51,6 +51,7 @@ class UNIXScriptModule:
         username = ensure_unicode(msg.Sender.Handle)
         full_name = ensure_unicode(msg.Sender.FullName)
         chat_name = ensure_unicode(msg.ChatName)
+        chat_id = ensure_unicode(get_chat_id(msg.Chat))
 
         #timeout(execute_module, name, args, callback, default=)
         def threaded_run():
@@ -62,6 +63,7 @@ class UNIXScriptModule:
             env["SKYPE_USERNAME"] = username.encode("utf-8")
             env["SKYPE_FULLNAME"] = full_name.encode("utf-8")
             env["SKYPE_CHATNAME"] = chat_name.encode("utf-8")
+            env["SKYPE_CHATID"] = chat_id.encode("utf-8")
 
             process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False, env=env)
             out = process.communicate()[0]
