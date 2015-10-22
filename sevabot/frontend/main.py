@@ -15,6 +15,7 @@ import os
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import jsonify
 
 import plac
 
@@ -140,11 +141,21 @@ def chats_post():
     chats = sevabot.getOpenChats()
     settings = get_settings()
 
-    shared_secret = request.form.get("secret")
+    json_data = request.get_json()
+    if json_data:
+        if json_data["secret"] != settings.SHARED_SECRET:
+            return '{"error": "Bad shared secret"}', 403, {"Content-type": "application/json"}
 
+        res = {}
+        for chat_id, chat in chats:
+            res.setdefault(chat_id, {}).update({'name': chat.FriendlyName})
+        return jsonify(res)
+
+    shared_secret = request.form.get("secret")
     if shared_secret != settings.SHARED_SECRET:
         return "Bad shared secret", 403, {"Content-type": "text/plain"}
 
+    #return render_template('chats.html' % format, chats=chats, shared_secret=shared_secret)
     return render_template('chats.html', chats=chats, shared_secret=shared_secret)
 
 
